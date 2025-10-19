@@ -23,7 +23,7 @@ const Cards: React.FC = () => {
         }
         setCoins(currentCoins ?? 0);
 
-        const r = await fetch(`http://localhost:5000/api/cards?email=${encodeURIComponent(email)}`);
+        const r = await fetch(`https://cannabuben-backend-fkxi.onrender.com/api/cards?email=${encodeURIComponent(email)}`);
         const j = await r.json();
         if (r.ok && j?.success) setCards(j.cards || []);
       } catch (e) {
