@@ -35,7 +35,7 @@ const Cards: React.FC = () => {
 
   return (
     <main className="grovi-main">
-      {/* TOP NAV (same as Dashboard) */}
+      {/* TOP NAV (shared across pages) */}
       <div className="grovi-topnav">
         <div className="grovi-top-logo">
           <img src={logo} alt="CannaBuben" />
@@ -48,6 +48,9 @@ const Cards: React.FC = () => {
         </NavLink>
         <NavLink to="/cards" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>
           Cards
+        </NavLink>
+        <NavLink to="/profile" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>
+          Profile
         </NavLink>
 
         <div className="grovi-coin-pill">
