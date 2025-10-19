@@ -293,6 +293,22 @@ body{background:var(--cream); color:var(--ink); margin:0; font-family:system-ui,
   }
 }
 
+/* 🎮 Game Page Layout */
+.games-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 1100px;
+}
+
+/* Stack vertically on mobile */
+@media screen and (max-width: 768px) {
+  .games-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 100% !important;
+  }
+}
+
 
 .auth-wrap {
   min-height: 100vh;
