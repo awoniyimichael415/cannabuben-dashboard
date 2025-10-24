@@ -1,18 +1,24 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { resolve } from "path";
 
 export default defineConfig({
   plugins: [react()],
-  // ✅ Allow React Router paths (like /admin/login) to work on Vercel
-  server: {
-    historyApiFallback: true,
-    port: 5173,
-  },
-  preview: {
-    historyApiFallback: true,
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "./src"),
+    },
   },
   build: {
     outDir: "dist",
-    sourcemap: false,
+  },
+  // ✅ Correct way for SPA routing fallback on Vite 5+ (Render / Vercel safe)
+  server: {
+    port: 5173,
+    fs: { strict: false },
+  },
+  // ✅ Enable history fallback through Rollup HTML entry
+  optimizeDeps: {
+    include: ["react", "react-dom"],
   },
 });
