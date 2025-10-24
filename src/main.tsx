@@ -32,74 +32,83 @@ import "./styles/dashboard.css";
 // ==========================================================
 // ROUTER CONFIGURATION
 // ==========================================================
-const router = createBrowserRouter(
-  [
-    // ============ USER ROUTES ============
-    { path: "/login", element: <Auth /> },
+const router = createBrowserRouter([
+  // ============ USER ROUTES ============
+  { path: "/login", element: <Auth /> },
 
-    {
-      path: "/",
-      element: (
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: "/games",
-      element: (
-        <ProtectedRoute>
-          <Games />
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: "/cards",
-      element: (
-        <ProtectedRoute>
-          <Cards />
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: "/profile",
-      element: (
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      ),
-    },
-
-    // ============ ADMIN LOGIN ============
-    { path: "/admin/login", element: <AdminLogin /> },
-
-    // ============ ADMIN DASHBOARD ============
-    {
-      path: "/admin",
-      element: (
-        <AdminProtectedRoute>
-          <AdminLayout />
-        </AdminProtectedRoute>
-      ),
-      children: [
-        { index: true, element: <AdminOverview /> },
-        { path: "users", element: <AdminUsers /> },
-        { path: "rewards", element: <AdminRewards /> },
-        { path: "cards", element: <AdminCards /> },
-        { path: "transactions", element: <AdminTransactions /> },
-        { path: "games", element: <AdminGames /> },
-        { path: "analytics", element: <AdminAnalytics /> },
-        { path: "settings", element: <AdminSettings /> },
-      ],
-    },
-
-    // ============ OPTIONAL LEGACY FALLBACK ============
-    { path: "/admin/*", element: <AdminDashboard /> },
-  ],
   {
-    basename: "/", // ✅ ensures routes work correctly on Vercel
-  }
-);
+    path: "/",
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+  path: "/admin",
+  element: (
+    <AdminProtectedRoute>
+      <AdminLayout />
+    </AdminProtectedRoute>
+  ),
+  children: [
+    { index: true, element: <AdminOverview /> },
+    // ...other admin routes
+  ],
+},
+  {
+    path: "/games",
+    element: (
+      <ProtectedRoute>
+        <Games />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/cards",
+    element: (
+      <ProtectedRoute>
+        <Cards />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
+  },
+
+  // ============ ADMIN LOGIN ============
+  { path: "/admin/login", element: <AdminLogin /> },
+
+  // ============ ADMIN DASHBOARD ============
+  {
+    path: "/admin",
+    element: (
+      <AdminProtectedRoute>
+        <AdminLayout />
+      </AdminProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <AdminOverview /> },
+      { path: "users", element: <AdminUsers /> },
+      { path: "rewards", element: <AdminRewards /> },
+      { path: "cards", element: <AdminCards /> },
+      { path: "transactions", element: <AdminTransactions /> },
+      { path: "games", element: <AdminGames /> },
+      { path: "analytics", element: <AdminAnalytics /> },
+      { path: "settings", element: <AdminSettings /> },
+    ],
+  },
+
+  // ============ OPTIONAL LEGACY FALLBACK ============
+  // If someone directly goes to /admin/* and not covered above,
+  // render the old AdminDashboard shell to avoid 404
+  { path: "/admin/*", element: <AdminDashboard /> },
+]);
 
 // ==========================================================
 // RENDER APP
