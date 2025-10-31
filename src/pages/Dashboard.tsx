@@ -100,7 +100,7 @@ const Dashboard: React.FC = () => {
 
         if (email) {
           // ✅ Fetch user cards using environment API_URL
-          const cr = await fetch(`${API_URL}/api/cards?email=${encodeURIComponent(email)}`);
+          const cr = await fetch(`${API_URL}/api/box?email=${encodeURIComponent(email)}`);
           const cj = await cr.json();
           if (cr.ok && cj?.success) setCards(cj.cards || []);
         }
