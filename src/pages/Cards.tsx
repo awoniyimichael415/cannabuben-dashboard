@@ -59,7 +59,7 @@ const Cards: React.FC = () => {
 
         // ✅ Use API_URL from .env instead of hardcoding
         const r = await fetch(
-          `${API_URL}/api/cards?email=${encodeURIComponent(email)}`
+          `${API_URL}/api/box?email=${encodeURIComponent(email)}`
         );
         const j = await r.json();
         if (r.ok && j?.success) setCards(j.cards || []);
