@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import "../../styles/dashboard.css"; // ✅ your main styling
 import { apiGet, apiPost } from "../../lib/api";
-import { Button } from "../../components/ui/button";
-import { Card, CardHeader, CardContent } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-
 
 interface SpinReward {
   label: string;
@@ -50,7 +45,6 @@ export default function AdminGames() {
     version: 1,
   });
 
-  // Load config on mount
   useEffect(() => {
     loadConfig();
   }, []);
@@ -63,31 +57,27 @@ export default function AdminGames() {
       if (data.success) {
         setSpin(data.data.spin);
         setBox(data.data.box);
-      } else toast.error("Failed to load game config");
+      } else alert("Failed to load game config");
     } catch (err) {
       console.error(err);
-      toast.error("Error loading config");
+      alert("Error loading config");
     }
     setLoading(false);
   }
 
   async function saveConfig(publish = false) {
     try {
-      const res = await apiPost("/api/admin/games", {
-        spin,
-        box,
-        publish,
-      });
+      const res = await apiPost("/api/admin/games", { spin, box, publish });
       const data = await res.json();
       if (data.success) {
-        toast.success(publish ? "Config published!" : "Draft saved!");
+        alert(publish ? "Config published!" : "Draft saved!");
         loadConfig();
       } else {
-        toast.error(data.error || "Save failed");
+        alert(data.error || "Save failed");
       }
     } catch (err) {
       console.error(err);
-      toast.error("Save failed");
+      alert("Save failed");
     }
   }
 
@@ -110,215 +100,181 @@ export default function AdminGames() {
   if (loading) return <p className="p-6">Loading game configuration...</p>;
 
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">🎮 Game Configuration</h1>
+    <main className="grovi-main">
+      <div className="grovi-topnav">
+        <h1 style={{ marginLeft: 20 }}>🎮 Game Configuration</h1>
+      </div>
 
-      {/* Spin Config */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-xl font-medium">Spin the Wheel</h2>
-          <p className="text-sm text-gray-500">
-            Configure spin rewards and cooldowns.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {spin.rewards?.length > 0 ? (
-            spin.rewards.map((r, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-5 gap-2 items-center border p-3 rounded-lg"
-              >
-                <Input
-                  value={r.label}
-                  onChange={(e) => updateReward(i, "label", e.target.value)}
-                  placeholder="Label"
-                />
-                <select
-                  value={r.type}
-                  onChange={(e) =>
-                    updateReward(
-                      i,
-                      "type",
-                      e.target.value as SpinReward["type"]
-                    )
-                  }
-                  className="border p-2 rounded-md"
-                >
-                  <option value="coins">Coins</option>
-                  <option value="mystery_box">Mystery Box</option>
-                  <option value="extra_spin">Extra Spin</option>
-                  <option value="nothing">Nothing</option>
-                </select>
-                <Input
-                  type="number"
-                  value={r.value}
-                  onChange={(e) =>
-                    updateReward(i, "value", Number(e.target.value))
-                  }
-                  placeholder="Value"
-                />
-                <Input
-                  type="number"
-                  value={r.weight}
-                  onChange={(e) =>
-                    updateReward(i, "weight", Number(e.target.value))
-                  }
-                  placeholder="Weight"
-                />
-                <Button
-                  variant="destructive"
-                  onClick={() =>
-                    setSpin((prev) => ({
-                      ...prev,
-                      rewards: prev.rewards.filter((_, idx) => idx !== i),
-                    }))
-                  }
-                >
-                  Remove
-                </Button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No rewards defined.</p>
-          )}
-          <Button
-            onClick={() =>
-              setSpin((prev) => ({
-                ...prev,
-                rewards: [
-                  ...prev.rewards,
-                  {
-                    label: "",
-                    type: "coins",
-                    value: 1,
-                    weight: 10,
-                  },
-                ],
-              }))
-            }
-          >
-            + Add Reward
-          </Button>
+      <div style={{ padding: 24 }}>
+        {/* Spin Config */}
+        <section className="panel">
+          <div className="panel-inner">
+            <h2>Spin the Wheel</h2>
+            <p className="muted small">Configure spin rewards and cooldowns.</p>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div>
-              <Label>Free Spin Cooldown (hours)</Label>
-              <Input
+            {spin.rewards.length > 0 ? (
+              spin.rewards.map((r, i) => (
+                <div key={i} className="panel bordered" style={{ marginBottom: 10 }}>
+                  <input
+                    value={r.label}
+                    onChange={(e) => updateReward(i, "label", e.target.value)}
+                    placeholder="Label"
+                  />
+                  <select
+                    value={r.type}
+                    onChange={(e) =>
+                      updateReward(i, "type", e.target.value as SpinReward["type"])
+                    }
+                  >
+                    <option value="coins">Coins</option>
+                    <option value="mystery_box">Mystery Box</option>
+                    <option value="extra_spin">Extra Spin</option>
+                    <option value="nothing">Nothing</option>
+                  </select>
+                  <input
+                    type="number"
+                    value={r.value}
+                    onChange={(e) => updateReward(i, "value", Number(e.target.value))}
+                    placeholder="Value"
+                  />
+                  <input
+                    type="number"
+                    value={r.weight}
+                    onChange={(e) => updateReward(i, "weight", Number(e.target.value))}
+                    placeholder="Weight"
+                  />
+                  <button
+                    className="cb-action-btn danger"
+                    onClick={() =>
+                      setSpin((prev) => ({
+                        ...prev,
+                        rewards: prev.rewards.filter((_, idx) => idx !== i),
+                      }))
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="muted small">No rewards defined.</p>
+            )}
+
+            <button
+              className="cb-action-btn"
+              onClick={() =>
+                setSpin((prev) => ({
+                  ...prev,
+                  rewards: [...prev.rewards, { label: "", type: "coins", value: 1, weight: 10 }],
+                }))
+              }
+            >
+              + Add Reward
+            </button>
+
+            <div style={{ marginTop: 20 }}>
+              <label>Free Spin Cooldown (hours)</label>
+              <input
                 type="number"
                 value={spin.freeCooldownHours}
                 onChange={(e) =>
                   setSpin({ ...spin, freeCooldownHours: Number(e.target.value) })
                 }
               />
-            </div>
-            <div>
-              <Label>Premium Spin Cooldown (hours)</Label>
-              <Input
+
+              <label>Premium Spin Cooldown (hours)</label>
+              <input
                 type="number"
                 value={spin.premiumCooldownHours}
                 onChange={(e) =>
-                  setSpin({
-                    ...spin,
-                    premiumCooldownHours: Number(e.target.value),
-                  })
+                  setSpin({ ...spin, premiumCooldownHours: Number(e.target.value) })
                 }
               />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </section>
 
-      {/* Box Config */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-xl font-medium">Mystery Box</h2>
-          <p className="text-sm text-gray-500">
-            Configure drop rates and pack size.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {box.pools?.length > 0 ? (
-            box.pools.map((p, i) => (
-              <div
-                key={i}
-                className="grid grid-cols-3 gap-3 items-center border p-3 rounded-lg"
-              >
-                <select
-                  value={p.rarity}
-                  onChange={(e) =>
-                    updatePool(i, "rarity", e.target.value as BoxPool["rarity"])
-                  }
-                  className="border p-2 rounded-md"
-                >
-                  <option value="Common">Common</option>
-                  <option value="Rare">Rare</option>
-                  <option value="Epic">Epic</option>
-                  <option value="Legendary">Legendary</option>
-                </select>
-                <Input
-                  type="number"
-                  value={p.weight}
-                  onChange={(e) =>
-                    updatePool(i, "weight", Number(e.target.value))
-                  }
-                  placeholder="Weight"
-                />
-                <Button
-                  variant="destructive"
-                  onClick={() =>
-                    setBox((prev) => ({
-                      ...prev,
-                      pools: prev.pools.filter((_, idx) => idx !== i),
-                    }))
-                  }
-                >
-                  Remove
-                </Button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No rarity pools defined.</p>
-          )}
-          <Button
-            onClick={() =>
-              setBox((prev) => ({
-                ...prev,
-                pools: [
-                  ...prev.pools,
-                  {
-                    rarity: "Common",
-                    weight: 60,
-                  },
-                ],
-              }))
-            }
-          >
-            + Add Pool
-          </Button>
+        {/* Box Config */}
+        <section className="panel">
+          <div className="panel-inner">
+            <h2>Mystery Box</h2>
+            <p className="muted small">Configure drop rates and pack size.</p>
 
-          <div className="mt-4">
-            <Label>Cards per Box</Label>
-            <Input
-              type="number"
-              value={box.packSize}
-              onChange={(e) =>
-                setBox({ ...box, packSize: Number(e.target.value) })
+            {box.pools.length > 0 ? (
+              box.pools.map((p, i) => (
+                <div key={i} className="panel bordered" style={{ marginBottom: 10 }}>
+                  <select
+                    value={p.rarity}
+                    onChange={(e) =>
+                      updatePool(i, "rarity", e.target.value as BoxPool["rarity"])
+                    }
+                  >
+                    <option value="Common">Common</option>
+                    <option value="Rare">Rare</option>
+                    <option value="Epic">Epic</option>
+                    <option value="Legendary">Legendary</option>
+                  </select>
+                  <input
+                    type="number"
+                    value={p.weight}
+                    onChange={(e) => updatePool(i, "weight", Number(e.target.value))}
+                    placeholder="Weight"
+                  />
+                  <button
+                    className="cb-action-btn danger"
+                    onClick={() =>
+                      setBox((prev) => ({
+                        ...prev,
+                        pools: prev.pools.filter((_, idx) => idx !== i),
+                      }))
+                    }
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="muted small">No rarity pools defined.</p>
+            )}
+
+            <button
+              className="cb-action-btn"
+              onClick={() =>
+                setBox((prev) => ({
+                  ...prev,
+                  pools: [...prev.pools, { rarity: "Common", weight: 60 }],
+                }))
               }
-            />
-          </div>
-        </CardContent>
-      </Card>
+            >
+              + Add Pool
+            </button>
 
-      {/* Actions */}
-      <div className="flex gap-4">
-        <Button onClick={() => saveConfig(false)}>💾 Save Draft</Button>
-        <Button
-          onClick={() => saveConfig(true)}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          🚀 Publish Config
-        </Button>
+            <div style={{ marginTop: 20 }}>
+              <label>Cards per Box</label>
+              <input
+                type="number"
+                value={box.packSize}
+                onChange={(e) =>
+                  setBox({ ...box, packSize: Number(e.target.value) })
+                }
+              />
+            </div>
+          </div>
+        </section>
+
+        <div className="flex gap-4" style={{ marginTop: 20 }}>
+          <button className="cb-action-btn" onClick={() => saveConfig(false)}>
+            💾 Save Draft
+          </button>
+          <button
+            className="cb-action-btn"
+            style={{ background: "#2e5632", color: "#fff" }}
+            onClick={() => saveConfig(true)}
+          >
+            🚀 Publish Config
+          </button>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
