@@ -46,29 +46,32 @@ const Cards: React.FC = () => {
   const [cards, setCards] = useState<any[]>([]);
   const [coins, setCoins] = useState<number | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        let currentCoins: number | null = null;
-        if (isLoggedIn()) {
-          const res = await apiGet("/api/auth/me");
-          const json = await res.json();
-          if (res.ok && json?.success) currentCoins = json.user?.coins ?? 0;
-        }
-        setCoins(currentCoins ?? 0);
+useEffect(() => {
+  async function load() {
+    try {
+      let currentCoins: number | null = null;
 
-        // ✅ Use API_URL from .env instead of hardcoding
-        const r = await fetch(
-          `${API_URL}/api/box?email=${encodeURIComponent(email)}`
-        );
-        const j = await r.json();
-        if (r.ok && j?.success) setCards(j.cards || []);
-      } catch (e) {
-        console.error(e);
-      }
+      // ✅ Always fetch user data from backend (same logic as Profile page)
+      const userRes = await fetch(
+        `${API_URL}/api/user?email=${encodeURIComponent(email)}`
+      );
+      const userJson = await userRes.json();
+      if (userRes.ok) currentCoins = userJson.coins ?? 0;
+      setCoins(currentCoins ?? 0);
+
+      // ✅ Fetch collected cards
+      const cardsRes = await fetch(
+        `${API_URL}/api/box?email=${encodeURIComponent(email)}`
+      );
+      const cardsJson = await cardsRes.json();
+      if (cardsRes.ok && cardsJson?.success) setCards(cardsJson.cards || []);
+    } catch (e) {
+      console.error("Error loading cards:", e);
     }
-    load();
-  }, [email]);
+  }
+  if (email) load();
+}, [email]);
+
 
   function getCardThumb(c: any, i: number): string {
     if (c?.image) return c.image;
