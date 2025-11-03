@@ -153,97 +153,79 @@ const CollectCard: React.FC<CollectCardProps> = ({ email, onCoinsUpdated, onColl
     <div
       className="collect-card-container"
       style={{
-        position: "relative",
         backgroundImage: `url(${gameBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         borderRadius: "16px",
         padding: "20px",
-        minHeight: "500px",
+        boxShadow: "0 0 20px rgba(46,86,50,0.4)",
+        minHeight: "500px", // ✅ fixed game zone height
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        overflow: "hidden",
       }}
     >
-      {/* ✅ Black overlay */}
-      <div
+      <button
+        onClick={handleOpenBox}
+        disabled={loading || !email}
+        className="cb-action-btn"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
           width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          borderRadius: "16px",
-          zIndex: 1,
+          marginBottom: 12,
+          padding: "12px 14px",
+          borderRadius: 10,
+          border: "1px solid rgba(255,255,255,0.3)",
+          background: loading || !email ? "rgba(255,255,255,0.3)" : "#DBAF3E",
+          color: "#fff",
+          fontWeight: 800,
+          cursor: loading || !email ? "not-allowed" : "pointer",
+          transition: "all .2s ease",
         }}
-      />
+      >
+        {loading ? "Opening Box..." : "Open Mystery Box"}
+      </button>
 
-      {/* ✅ Content layer */}
-      <div style={{ position: "relative", zIndex: 2, textAlign: "center", width: "100%" }}>
-        <button
-          onClick={handleOpenBox}
-          disabled={loading || !email}
-          className="cb-action-btn"
-          style={{
-            width: "100%",
-            marginBottom: 12,
-            padding: "12px 14px",
-            borderRadius: 10,
-            border: "1px solid rgba(255,255,255,0.3)",
-            background: loading || !email ? "rgba(255,255,255,0.3)" : "#DBAF3E",
-            color: "#000", // ✅ black text
-            fontWeight: 800,
-            cursor: loading || !email ? "not-allowed" : "pointer",
-            transition: "all .2s ease",
-          }}
-        >
-          {loading ? "Opening Box..." : "Open Mystery Box"}
-        </button>
-
-        <div style={{ marginBottom: 10, fontSize: "14px", color: "#fff" }}>
-          {boxes > 0
-            ? `🎁 You have ${boxes} Mystery Box${boxes > 1 ? "es" : ""} available`
-            : "No boxes available"}
-        </div>
-
-        {message && (
-          <div style={{ marginBottom: 10, color: "#fff", fontWeight: 600 }}>{message}</div>
-        )}
-
-        {card && (
-          <div className="card-result" style={{ textAlign: "center" }}>
-            <img
-              src={card.image}
-              alt={card.name}
-              style={{
-                width: "180px",
-                borderRadius: 12,
-                boxShadow: "0 0 20px rgba(219,175,62,0.6)",
-                animation: "pulseGlow 2s infinite ease-in-out",
-              }}
-            />
-            <div style={{ marginTop: 8, fontWeight: 700, color: "#fff" }}>{card.name}</div>
-            <div
-              style={{
-                color:
-                  card.rarity === "Legendary"
-                    ? "#FFD700"
-                    : card.rarity === "Epic"
-                    ? "#9A6FFF"
-                    : card.rarity === "Rare"
-                    ? "#A7F5A7"
-                    : "#DDD",
-                fontWeight: 600,
-              }}
-            >
-              {card.rarity}
-            </div>
-          </div>
-        )}
+      <div style={{ marginBottom: 10, fontSize: "14px", color: "#fff" }}>
+        {boxes > 0
+          ? `🎁 You have ${boxes} Mystery Box${boxes > 1 ? "es" : ""} available`
+          : "No boxes available"}
       </div>
+
+      {message && (
+        <div style={{ marginBottom: 10, color: "#fff", fontWeight: 600 }}>{message}</div>
+      )}
+
+      {card && (
+        <div className="card-result" style={{ textAlign: "center" }}>
+          <img
+            src={card.image}
+            alt={card.name}
+            style={{
+              width: "180px",
+              borderRadius: 12,
+              boxShadow: "0 0 20px rgba(219,175,62,0.6)",
+              animation: "pulseGlow 2s infinite ease-in-out",
+            }}
+          />
+          <div style={{ marginTop: 8, fontWeight: 700, color: "#fff" }}>{card.name}</div>
+          <div
+            style={{
+              color:
+                card.rarity === "Legendary"
+                  ? "#FFD700"
+                  : card.rarity === "Epic"
+                  ? "#9A6FFF"
+                  : card.rarity === "Rare"
+                  ? "#A7F5A7"
+                  : "#DDD",
+              fontWeight: 600,
+            }}
+          >
+            {card.rarity}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
