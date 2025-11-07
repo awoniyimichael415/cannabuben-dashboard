@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import "../styles/dashboard.css";
+<<<<<<< HEAD
 import { apiGet, API_URL } from "../lib/api"; // ✅ imported API_URL here
 import { getEmail, isLoggedIn } from "../lib/auth";
+=======
+import { API_URL } from "../lib/api";
+import { getEmail } from "../lib/auth";
+>>>>>>> b2b5e8b (Frontend update – new ProtectedRoute + Cards merge + Admin fixes)
 import logo from "../assets/logo.png";
 import coinIcon from "../assets/logo-icon.png";
 
@@ -45,7 +50,9 @@ const Cards: React.FC = () => {
   const email = getEmail() || "";
   const [cards, setCards] = useState<any[]>([]);
   const [coins, setCoins] = useState<number | null>(null);
+  const [selectedCard, setSelectedCard] = useState<any | null>(null);
 
+<<<<<<< HEAD
 useEffect(() => {
   async function load() {
     try {
@@ -73,6 +80,28 @@ useEffect(() => {
 }, [email]);
 
 
+=======
+  useEffect(() => {
+    async function load() {
+      try {
+        let currentCoins: number | null = null;
+
+        const userRes = await fetch(`${API_URL}/api/user?email=${encodeURIComponent(email)}`);
+        const userJson = await userRes.json();
+        if (userRes.ok) currentCoins = userJson.coins ?? 0;
+        setCoins(currentCoins ?? 0);
+
+        const cardsRes = await fetch(`${API_URL}/api/box?email=${encodeURIComponent(email)}`);
+        const cardsJson = await cardsRes.json();
+        if (cardsRes.ok && cardsJson?.success) setCards(cardsJson.cards || []);
+      } catch (e) {
+        console.error("Error loading cards:", e);
+      }
+    }
+    if (email) load();
+  }, [email]);
+
+>>>>>>> b2b5e8b (Frontend update – new ProtectedRoute + Cards merge + Admin fixes)
   function getCardThumb(c: any, i: number): string {
     if (c?.image) return c.image;
     const id = c.cardId ?? i + 1;
@@ -91,21 +120,11 @@ useEffect(() => {
         <div className="grovi-top-logo">
           <img src={logo} alt="CannaBuben" />
         </div>
-        <NavLink to="/" end className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/games" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>
-          Games
-        </NavLink>
-        <NavLink to="/cards" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>
-          Cards
-        </NavLink>
-        <NavLink to="/profile" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>
-          Profile
-        </NavLink>
-        <NavLink to="/Rewards" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>
-          Rewards
-        </NavLink>
+        <NavLink to="/" end className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>Dashboard</NavLink>
+        <NavLink to="/games" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>Games</NavLink>
+        <NavLink to="/cards" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>Cards</NavLink>
+        <NavLink to="/profile" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>Profile</NavLink>
+        <NavLink to="/Rewards" className={({ isActive }) => (isActive ? "toplink active" : "toplink")}>Rewards</NavLink>
 
         <div className="grovi-coin-pill">
           <img src={coinIcon} alt="Coins" />
@@ -115,7 +134,7 @@ useEffect(() => {
 
       <div style={{ padding: 24 }}>
         <h2 style={{ marginTop: 0, color: "#2E5632" }}>My Cards Collection</h2>
-        <p className="muted">Here are all your collected strain cards.</p>
+        <p className="muted">Here are all your collected cards, including 🧩 Strain Cards from orders.</p>
 
         <div
           className="cards-grid"
@@ -124,17 +143,41 @@ useEffect(() => {
             gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
           }}
         >
-          {cards.length === 0 && (
-            <p className="muted">You haven’t collected any cards yet.</p>
-          )}
+          {cards.length === 0 && <p className="muted">You haven’t collected any cards yet.</p>}
 
           {cards.map((c, i) => (
-            <div key={c.id || i} className="card-thumb">
+            <div
+              key={c._id || i}
+              className="card-thumb"
+              onClick={() => setSelectedCard(c)}
+              style={{ cursor: "pointer", transition: "transform 0.2s ease" }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+            >
               <div className="thumb-imgwrap">
                 <img src={getCardThumb(c, i)} alt={c.name || "Card"} />
               </div>
               <div className="thumb-caption">
-                <div className="thumb-title">{c.name || "Strain Card"}</div>
+                <div className="thumb-title">{c.name || "Card"}</div>
+
+                {/* ✅ Show 🧩 Strain Card tag only if source = 'order' */}
+                {c.source === "order" && (
+                  <div
+                    className="pill small strain-tag"
+                    style={{
+                      background: "#2E5632",
+                      color: "#fff",
+                      fontWeight: 700,
+                      borderRadius: 6,
+                      padding: "2px 6px",
+                      marginTop: 4,
+                      display: "inline-block",
+                    }}
+                  >
+                    🧩 Strain Card
+                  </div>
+                )}
+
                 {c.rarity && (
                   <div className={`pill small rarity-${(c.rarity || "").toLowerCase()}`}>
                     {c.rarity}
@@ -145,6 +188,71 @@ useEffect(() => {
           ))}
         </div>
       </div>
+
+      {selectedCard && (
+        <div
+          className="modal-overlay"
+          onClick={() => setSelectedCard(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: "12px",
+              padding: "20px",
+              textAlign: "center",
+              maxWidth: "320px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            }}
+          >
+            <img
+              src={getCardThumb(selectedCard, 0)}
+              alt={selectedCard.name}
+              style={{
+                width: "200px",
+                borderRadius: "10px",
+                boxShadow: "0 4px 18px rgba(0,0,0,0.25)",
+              }}
+            />
+            <h3 style={{ marginTop: 12, color: "#2E5632" }}>
+              {selectedCard.name || "Mystery Card"}
+            </h3>
+            <p style={{ color: "#888", fontWeight: 600 }}>
+              {selectedCard.source === "order"
+                ? "🧩 Strain Card"
+                : selectedCard.rarity || "Common"}
+            </p>
+            <button
+              onClick={() => setSelectedCard(null)}
+              style={{
+                marginTop: 10,
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: "none",
+                background: "#DBAF3E",
+                color: "#1E1E1E",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
