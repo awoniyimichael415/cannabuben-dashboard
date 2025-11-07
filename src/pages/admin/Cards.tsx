@@ -11,6 +11,9 @@ interface Card {
   productId?: number;
   active?: boolean;
   createdAt?: string;
+
+  // ✅ Added so TypeScript accepts file upload
+  file?: File | null;
 }
 
 const AdminCards: React.FC = () => {
@@ -37,11 +40,14 @@ const AdminCards: React.FC = () => {
     }
   }
 
-  useEffect(() => { loadCards(); }, []);
+  useEffect(() => {
+    loadCards();
+  }, []);
 
   async function uploadImage(file: File): Promise<string> {
     const data = new FormData();
     data.append("image", file);
+
     const res = await fetch(`${API_URL}/api/admin/upload`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -56,14 +62,17 @@ const AdminCards: React.FC = () => {
     e.preventDefault();
     try {
       let imgUrl = form.imageUrl || "";
-      if ((form as any).file instanceof File) {
-        imgUrl = await uploadImage((form as any).file);
+
+      if (form.file instanceof File) {
+        imgUrl = await uploadImage(form.file);
       }
+
       const payload = { ...form, imageUrl: imgUrl };
       const method = editingId ? "PUT" : "POST";
       const url = editingId
         ? `${API_URL}/api/admin/cards/${editingId}`
         : `${API_URL}/api/admin/cards`;
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -72,8 +81,10 @@ const AdminCards: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
+
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Save failed");
+
       setForm({});
       setEditingId(null);
       loadCards();
@@ -85,13 +96,16 @@ const AdminCards: React.FC = () => {
 
   async function deleteCard(id: string) {
     if (!confirm("Delete this card?")) return;
+
     try {
       const res = await fetch(`${API_URL}/api/admin/cards/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Delete failed");
+
       loadCards();
     } catch (err: any) {
       alert("❌ " + err.message);
@@ -129,7 +143,6 @@ const AdminCards: React.FC = () => {
           required
         />
 
-        {/* NEW FIELD: WooCommerce product ID */}
         <input
           type="number"
           placeholder="WooCommerce Product ID"
@@ -143,7 +156,12 @@ const AdminCards: React.FC = () => {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setForm({ ...form, file: e.target.files?.[0] })}
+          onChange={(e) =>
+            setForm((prev) => ({
+              ...prev,
+              file: e.target.files?.[0] || null, // ✅ Updated
+            }))
+          }
         />
 
         <label style={{ marginLeft: 10 }}>
@@ -203,7 +221,14 @@ const AdminCards: React.FC = () => {
                 </td>
                 <td>{c.active ? "✅" : "❌"}</td>
                 <td>
-                  <button onClick={() => { setForm(c); setEditingId(c._id!); }}>✏️</button>
+                  <button
+                    onClick={() => {
+                      setForm(c);
+                      setEditingId(c._id!);
+                    }}
+                  >
+                    ✏️
+                  </button>
                   <button onClick={() => deleteCard(c._id!)}>🗑️</button>
                 </td>
               </tr>
