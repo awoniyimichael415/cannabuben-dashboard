@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import "../styles/dashboard.css";
-<<<<<<< HEAD
-import { apiGet, API_URL } from "../lib/api"; // ✅ imported API_URL here
-import { getEmail, isLoggedIn } from "../lib/auth";
-=======
 import { API_URL } from "../lib/api";
 import { getEmail } from "../lib/auth";
->>>>>>> b2b5e8b (Frontend update – new ProtectedRoute + Cards merge + Admin fixes)
+
 import logo from "../assets/logo.png";
 import coinIcon from "../assets/logo-icon.png";
 
@@ -52,45 +48,18 @@ const Cards: React.FC = () => {
   const [coins, setCoins] = useState<number | null>(null);
   const [selectedCard, setSelectedCard] = useState<any | null>(null);
 
-<<<<<<< HEAD
-useEffect(() => {
-  async function load() {
-    try {
-      let currentCoins: number | null = null;
-
-      // ✅ Always fetch user data from backend (same logic as Profile page)
-      const userRes = await fetch(
-        `${API_URL}/api/user?email=${encodeURIComponent(email)}`
-      );
-      const userJson = await userRes.json();
-      if (userRes.ok) currentCoins = userJson.coins ?? 0;
-      setCoins(currentCoins ?? 0);
-
-      // ✅ Fetch collected cards
-      const cardsRes = await fetch(
-        `${API_URL}/api/box?email=${encodeURIComponent(email)}`
-      );
-      const cardsJson = await cardsRes.json();
-      if (cardsRes.ok && cardsJson?.success) setCards(cardsJson.cards || []);
-    } catch (e) {
-      console.error("Error loading cards:", e);
-    }
-  }
-  if (email) load();
-}, [email]);
-
-
-=======
   useEffect(() => {
     async function load() {
       try {
         let currentCoins: number | null = null;
 
+        // ✅ Fetch user coins
         const userRes = await fetch(`${API_URL}/api/user?email=${encodeURIComponent(email)}`);
         const userJson = await userRes.json();
         if (userRes.ok) currentCoins = userJson.coins ?? 0;
         setCoins(currentCoins ?? 0);
 
+        // ✅ Fetch collected cards (strain + game combined)
         const cardsRes = await fetch(`${API_URL}/api/box?email=${encodeURIComponent(email)}`);
         const cardsJson = await cardsRes.json();
         if (cardsRes.ok && cardsJson?.success) setCards(cardsJson.cards || []);
@@ -101,7 +70,6 @@ useEffect(() => {
     if (email) load();
   }, [email]);
 
->>>>>>> b2b5e8b (Frontend update – new ProtectedRoute + Cards merge + Admin fixes)
   function getCardThumb(c: any, i: number): string {
     if (c?.image) return c.image;
     const id = c.cardId ?? i + 1;
@@ -109,7 +77,7 @@ useEffect(() => {
       1: card1, 2: card2, 3: card3, 4: card4, 5: card5, 6: card6, 7: card7, 8: card8, 9: card9,
       10: card10, 11: card11, 12: card12, 13: card13, 14: card14, 15: card15, 16: card16, 17: card17,
       18: card18, 19: card19, 20: card20, 21: card21, 22: card22, 23: card23, 24: card24, 25: card25,
-      26: card26, 27: card27, 28: card28, 29: card29, 30: card30, 31: card31, 32: card32, 33: card33
+      26: card26, 27: card27, 28: card28, 29: card29, 30: card30, 31: card31, 32: card32, 33: card33,
     };
     return CARD_IMAGES[id] || card1;
   }
@@ -160,7 +128,6 @@ useEffect(() => {
               <div className="thumb-caption">
                 <div className="thumb-title">{c.name || "Card"}</div>
 
-                {/* ✅ Show 🧩 Strain Card tag only if source = 'order' */}
                 {c.source === "order" && (
                   <div
                     className="pill small strain-tag"
