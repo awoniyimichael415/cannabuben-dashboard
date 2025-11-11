@@ -1,5 +1,3 @@
-// ✅ FULL UPDATED AdminCards.tsx (NO NEED TO EDIT ANYTHING)
-
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../../lib/api";
 import { getAdminToken } from "../../lib/adminAuth";
@@ -10,11 +8,10 @@ interface Card {
   rarity: string;
   coinsEarned: number;
   imageUrl?: string;
-  productId?: number;
+  productId?: number | null;
   active?: boolean;
   createdAt?: string;
-
-  file?: File | null; // required for TS
+  file?: File | null; // ✅ allow file uploads
 }
 
 const AdminCards: React.FC = () => {
@@ -32,6 +29,7 @@ const AdminCards: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
+
       if (!json.success) throw new Error(json.error || "Failed to load cards");
       setCards(json.cards || []);
     } catch (err: any) {
@@ -56,20 +54,27 @@ const AdminCards: React.FC = () => {
     });
     const json = await res.json();
     if (!json.success) throw new Error(json.error || "Upload failed");
-    return json.url;
+    return json.url; // ✅ Cloudinary returns secure_url
   }
 
-  // ✅ UPDATED SAVE FUNCTION (creates ProductCardMap automatically)
   async function saveCard(e: React.FormEvent) {
     e.preventDefault();
     try {
       let imgUrl = form.imageUrl || "";
 
+      // ✅ Upload file if new image selected
       if (form.file instanceof File) {
         imgUrl = await uploadImage(form.file);
       }
 
-      const payload = { ...form, imageUrl: imgUrl };
+      const payload = {
+        name: form.name,
+        rarity: form.rarity,
+        coinsEarned: form.coinsEarned,
+        imageUrl: imgUrl,           // ✅ ENSURE imageUrl stored in Card doc
+        productId: form.productId,  // ✅ ENSURE productId stored in Card doc
+        active: form.active ?? true,
+      };
 
       const method = editingId ? "PUT" : "POST";
       const url = editingId
@@ -86,28 +91,12 @@ const AdminCards: React.FC = () => {
       });
 
       const json = await res.json();
-      if (!json.success || !json.card)
-        throw new Error(json.error || "Save failed");
-
-      // ✅ Automatically insert/update ProductCardMap
-      if (payload.productId) {
-        await fetch(`${API_URL}/api/admin/map-product-card`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            productId: payload.productId,
-            cardId: json.card._id, // backend returns card object
-          }),
-        });
-      }
+      if (!json.success) throw new Error(json.error || "Save failed");
 
       setForm({});
       setEditingId(null);
       loadCards();
-      alert("✅ Card saved and mapping created!");
+      alert("✅ Card saved successfully!");
     } catch (err: any) {
       alert("❌ " + err.message);
     }
@@ -169,7 +158,6 @@ const AdminCards: React.FC = () => {
           onChange={(e) =>
             setForm({ ...form, productId: Number(e.target.value) })
           }
-          required
         />
 
         <input
