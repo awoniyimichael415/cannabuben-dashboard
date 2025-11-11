@@ -1,3 +1,5 @@
+// ✅ FULL UPDATED AdminCards.tsx (NO NEED TO EDIT ANYTHING)
+
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../../lib/api";
 import { getAdminToken } from "../../lib/adminAuth";
@@ -12,8 +14,7 @@ interface Card {
   active?: boolean;
   createdAt?: string;
 
-  // ✅ Added so TypeScript accepts file upload
-  file?: File | null;
+  file?: File | null; // required for TS
 }
 
 const AdminCards: React.FC = () => {
@@ -58,6 +59,7 @@ const AdminCards: React.FC = () => {
     return json.url;
   }
 
+  // ✅ UPDATED SAVE FUNCTION (creates ProductCardMap automatically)
   async function saveCard(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -68,6 +70,7 @@ const AdminCards: React.FC = () => {
       }
 
       const payload = { ...form, imageUrl: imgUrl };
+
       const method = editingId ? "PUT" : "POST";
       const url = editingId
         ? `${API_URL}/api/admin/cards/${editingId}`
@@ -83,12 +86,28 @@ const AdminCards: React.FC = () => {
       });
 
       const json = await res.json();
-      if (!json.success) throw new Error(json.error || "Save failed");
+      if (!json.success || !json.card)
+        throw new Error(json.error || "Save failed");
+
+      // ✅ Automatically insert/update ProductCardMap
+      if (payload.productId) {
+        await fetch(`${API_URL}/api/admin/map-product-card`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId: payload.productId,
+            cardId: json.card._id, // backend returns card object
+          }),
+        });
+      }
 
       setForm({});
       setEditingId(null);
       loadCards();
-      alert("✅ Card saved successfully!");
+      alert("✅ Card saved and mapping created!");
     } catch (err: any) {
       alert("❌ " + err.message);
     }
@@ -159,7 +178,7 @@ const AdminCards: React.FC = () => {
           onChange={(e) =>
             setForm((prev) => ({
               ...prev,
-              file: e.target.files?.[0] || null, // ✅ Updated
+              file: e.target.files?.[0] || null,
             }))
           }
         />
