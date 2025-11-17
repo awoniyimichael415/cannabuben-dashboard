@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getAdminToken, clearAdminSession } from "../../lib/adminAuth";
-import { API_URL } from "../../lib/api";
-import "../../styles/dashboard.css";
-import logo from "../../assets/logo.png";
+import React, { useEffect, useState } from "react"
+import { NavLink, useNavigate } from "react-router-dom"
+import { getAdminToken, clearAdminSession } from "../../lib/adminAuth"
+import { API_URL } from "../../lib/api"
+import "../../styles/dashboard.css"
+import logo from "../../assets/logo.png"
 
 const AdminDashboard: React.FC = () => {
   const nav = useNavigate();
