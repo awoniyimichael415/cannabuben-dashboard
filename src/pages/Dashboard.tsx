@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react"
-import { Link, NavLink, useNavigate } from "react-router-dom"
-import "../styles/dashboard.css"
-import { apiGet, API_URL } from "../lib/api" // ✅ import API_URL
-import { clearSession, getEmail, isLoggedIn } from "../lib/auth"
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import "../styles/dashboard.css";
+import { apiGet, API_URL } from "../lib/api"; // ✅ import API_URL
+import { clearSession, getEmail, isLoggedIn } from "../lib/auth";
 
 // Assets
-import logo from "../assets/logo.png"
-import coinIcon from "../assets/logo-icon.png"
-import spinWheel from "../assets/spin-wheel.png"
-import cardFront from "../assets/card-front.png"
+import logo from "../assets/logo.png";
+import coinIcon from "../assets/logo-icon.png";
+import spinWheel from "../assets/spin-wheel.png";
+import cardFront from "../assets/card-front.png";
 
 // Local card images
 import card1 from "../assets/card-front-1.png";
